@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HandyFlix - Watch Movies & Series</title>
+    
+    <!-- Favicon and App Icons -->
+    <link rel="icon" type="image/jpeg" href="/IMG-20251115-WA0368.jpg">
+    <link rel="apple-touch-icon" href="/IMG-20251115-WA0368.jpg">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Watch movies and series online with HandyFlix. Trending movies, new releases, and more.">
+    <meta name="keywords" content="movies, series, streaming, watch online">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#e50914">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #141414;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #e50914;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+        }
+
+        .search-btn {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .search-btn:hover {
+            color: #e50914;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 500px;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+                        url('/default-hero.jpg') center/cover no-repeat;
+            display: flex;
+            align-items: flex-end;
+            padding: 60px 50px;
+        }
+
+        .hero-content h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .hero-content p {
+            font-size: 18px;
+            max-width: 500px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-play {
+            background-color: #ffffff;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .btn-play:hover {
+            background-color: rgba(255, 255, 255, 0.75);
+        }
+
+        .btn-more {
+            background-color: rgba(109, 109, 110, 0.7);
+            color: #ffffff;
+        }
+
+        .btn-more:hover {
+            background-color: rgba(109, 109, 110, 0.4);
+        }
+
+        /* Content Container */
+        .container {
+            padding: 20px 50px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* Movies Row */
+        .movies-row {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+            scroll-behavior: smooth;
+            margin-bottom: 40px;
+        }
+
+        .movies-row::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .movies-row::-webkit-scrollbar-track {
+            background: #2f2f2f;
+            border-radius: 4px;
+        }
+
+        .movies-row::-webkit-scrollbar-thumb {
+            background: #e50914;
+            border-radius: 4px;
+        }
+
+        /* Movie Card */
+        .movie-card {
+            flex: 0 0 250px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .movie-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.8);
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 375px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .movie-card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .movie-card:hover .movie-card-overlay {
+            opacity: 1;
+        }
+
+        .movie-card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .movie-card-info {
+            font-size: 12px;
+            color: #b3b3b3;
+            margin-bottom: 10px;
+        }
+
+        .movie-card-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .card-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #b3b3b3;
+            background: transparent;
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .card-btn:hover {
+            border-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card-btn.play {
+            background-color: #e50914;
+            border-color: #e50914;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #b3b3b3;
+        }
+
+        .spinner {
+            border: 4px solid #2f2f2f;
+            border-top: 4px solid #e50914;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+            }
+
+            .hero {
+                height: 300px;
+                padding: 30px 20px;
+            }
+
+            .hero-content h1 {
+                font-size: 32px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .movie-card {
+                flex: 0 0 150px;
+            }
+
+            .movie-card img {
+                height: 225px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <a href="/" class="logo">
+            <img src="/IMG-20251115-WA0368.jpg" alt="HandyFlix Logo" class="logo-img">
+            <span>HandyFlix</span>
+        </a>
+        <a href="/search" class="search-btn">
+            <i class="fas fa-search"></i>
+        </a>
+    </header>
+
+    <!-- Hero Section -->
+    <div class="hero" id="hero-section">
+        <div class="hero-content">
+            <h1 id="hero-title">Welcome to HandyFlix</h1>
+            <p id="hero-description">Discover and watch your favorite movies and series.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-play" id="hero-play-btn">
+                    <i class="fas fa-play"></i> Play
+                </button>
+                <button class="btn btn-more" id="hero-more-btn">
+                    <i class="fas fa-info-circle"></i> More Info
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="container">
+        <!-- Trending Now -->
+        <div>
+            <h2 class="section-title">Trending Now 🔥</h2>
+            <div class="movies-row" id="trending-movies"></div>
+        </div>
+
+        <!-- Hollywood Movies -->
+        <div>
+            <h2 class="section-title">Hollywood Movies</h2>
+            <div class="movies-row" id="hollywood-movies"></div>
+        </div>
+
+        <!-- New Series -->
+        <div>
+            <h2 class="section-title">New Series</h2>
+            <div class="movies-row" id="new-series"></div>
+        </div>
+
+        <!-- Anime -->
+        <div>
+            <h2 class="section-title">Anime</h2>
+            <div class="movies-row" id="anime-movies"></div>
+        </div>
+    </div>
+
+    <script>
+        // API Data (from your api-test.json)
+        const API_DATA = {
+            status: 200,
+            success: true,
+            data: {
+                operatingList: []
+            }
+        };
+
+        // Movie categories mapping
+        const CATEGORIES = {
+            'trending': 3,
+            'hollywood': 4,
+            'newSeries': 22,
+            'anime': 25
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMovies();
+            setupEventListeners();
+        });
+
+        function loadMovies() {
+            // Fetch data from your API
+            fetch('/api-test.json')
+                .then(response => response.json())
+                .then(data => {
+                    renderMovies(data.data.operatingList);
+                })
+                .catch(error => {
+                    console.error('Error loading movies:', error);
+                    displayError();
+                });
+        }
+
+        function renderMovies(operatingList) {
+            // Find sections by position
+            const trendingSection = operatingList.find(op => op.position === 3);
+            const hollywoodSection = operatingList.find(op => op.position === 4);
+            const newSeriesSection = operatingList.find(op => op.position === 22);
+            const animeSection = operatingList.find(op => op.position === 25);
+
+            if (trendingSection && trendingSection.subjects) {
+                renderMovieRow('trending-movies', trendingSection.subjects);
+                setHeroMovie(trendingSection.subjects[0]);
+            }
+
+            if (hollywoodSection && hollywoodSection.subjects) {
+                renderMovieRow('hollywood-movies', hollywoodSection.subjects);
+            }
+
+            if (newSeriesSection && newSeriesSection.subjects) {
+                renderMovieRow('new-series', newSeriesSection.subjects);
+            }
+
+            if (animeSection && animeSection.subjects) {
+                renderMovieRow('anime-movies', animeSection.subjects);
+            }
+        }
+
+        function renderMovieRow(elementId, movies) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            movies.forEach(movie => {
+                const card = createMovieCard(movie);
+                container.appendChild(card);
+            });
+        }
+
+        function createMovieCard(movie) {
+            const card = document.createElement('div');
+            card.className = 'movie-card';
+            
+            const imageUrl = movie.cover?.url || '/default-movie.jpg';
+            const title = movie.title || 'Unknown';
+            const rating = movie.imdbRatingValue || 'N/A';
+            const year = movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : '';
+
+            card.innerHTML = `
+                <img src="${imageUrl}" alt="${title}" loading="lazy">
+                <div class="movie-card-overlay">
+                    <div class="movie-card-title">${title}</div>
+                    <div class="movie-card-info">
+                        <span>⭐ ${rating}</span> • <span>${year}</span>
+                    </div>
+                    <div class="movie-card-buttons">
+                        <button class="card-btn play" title="Play">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="card-btn" title="Add to Favorites">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="card-btn" title="More Info">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Add click handlers
+            const playBtn = card.querySelector('.play');
+            playBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                playMovie(movie);
+            });
+
+            card.addEventListener('click', () => {
+                viewMovieDetails(movie);
+            });
+
+            return card;
+        }
+
+        function setHeroMovie(movie) {
+            if (!movie) return;
+
+            const heroSection = document.getElementById('hero-section');
+            const titleEl = document.getElementById('hero-title');
+            const descEl = document.getElementById('hero-description');
+            const imageUrl = movie.cover?.url || '/default-hero.jpg';
+
+            titleEl.textContent = movie.title || 'Welcome to HandyFlix';
+            descEl.textContent = movie.description || 'Discover and watch your favorite movies and series.';
+            heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${imageUrl}')`;
+
+            document.getElementById('hero-play-btn').addEventListener('click', () => {
+                playMovie(movie);
+            });
+
+            document.getElementById('hero-more-btn').addEventListener('click', () => {
+                viewMovieDetails(movie);
+            });
+        }
+
+        function playMovie(movie) {
+            // Store movie data in session storage
+            sessionStorage.setItem('currentMovie', JSON.stringify(movie));
+            // Redirect to player
+            window.location.href = `/player.html?id=${movie.subjectId}`;
+        }
+
+        function viewMovieDetails(movie) {
+            // Store movie data and redirect to details page
+            sessionStorage.setItem('selectedMovie', JSON.stringify(movie));
+            window.location.href = `/details.html?id=${movie.subjectId}`;
+        }
+
+        function setupEventListeners() {
+            // Add search functionality
+            const searchBtn = document.querySelector('.search-btn');
+            searchBtn.addEventListener('click', () => {
+                window.location.href = '/search.html';
+            });
+        }
+
+        function displayError() {
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="loading">
+                    <p><i class="fas fa-exclamation-circle"></i></p>
+                    <p>Failed to load movies. Please try again later.</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

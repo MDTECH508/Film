@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>CINEHAITI - Player</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .player-page {
+            min-height: 100vh;
+            background: #000;
+        }
+
+        .player-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 20px;
+            background: linear-gradient(180deg, #000 0%, rgba(0,0,0,0.9) 100%);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .player-back {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-decoration: none;
+            font-size: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .player-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* Video Placeholder */
+        .video-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .video-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+        }
+
+        .play-button-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #e50914;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            cursor: pointer;
+            position: relative;
+            z-index: 10;
+            transition: transform 0.2s;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .play-button-large:hover {
+            transform: scale(1.1);
+        }
+
+        .video-title {
+            position: relative;
+            z-index: 10;
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            padding: 0 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .video-subtitle {
+            position: relative;
+            z-index: 10;
+            color: #aaa;
+            font-size: 16px;
+        }
+
+        /* Movie Info Section */
+        .movie-info-section {
+            padding: 25px 20px;
+            background: #111;
+            border-bottom: 1px solid #222;
+        }
+
+        .movie-title-large {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .movie-meta {
+            display: flex;
+            gap: 15px;
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .imdb-badge {
+            background: #f5c518;
+            color: #000;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .movie-description {
+            color: #ccc;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            font-size: 15px;
+        }
+
+        .movie-extra {
+            display: flex;
+            gap: 15px;
+            color: #888;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+
+        .extra-item {
+            background: #1f1f1f;
+            padding: 6px 15px;
+            border-radius: 30px;
+            border: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .extra-item i {
+            color: #e50914;
+        }
+
+        /* Similar Movies */
+        .related-section {
+            padding: 25px 20px;
+        }
+
+        .related-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .related-title i {
+            color: #e50914;
+        }
+
+        .movies-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .related-card {
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 1px solid #2a2a2a;
+        }
+
+        .related-card:active {
+            transform: scale(0.98);
+        }
+
+        .related-poster {
+            width: 100%;
+            aspect-ratio: 2/3;
+            background: #2a2a2a;
+        }
+
+        .related-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .related-info {
+            padding: 8px;
+        }
+
+        .related-info h4 {
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #fff;
+        }
+
+        .related-info p {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .back-home {
+            display: inline-block;
+            margin-top: 20px;
+            color: #e50914;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 0;
+        }
+
+        .not-found {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .not-found i {
+            font-size: 60px;
+            color: #e50914;
+            margin-bottom: 20px;
+        }
+
+        .not-found h3 {
+            margin-bottom: 20px;
+            color: #aaa;
+            font-size: 22px;
+        }
+
+        .not-found a {
+            color: #e50914;
+            text-decoration: none;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="player-page">
+        <div class="player-header">
+            <a href="javascript:history.back()" class="player-back">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div class="player-title" id="player-title">Chajman...</div>
+        </div>
+        
+        <!-- Video Placeholder -->
+        <div class="video-placeholder" id="videoPlaceholder" style="background-image: url('');">
+            <div class="play-button-large" id="playButton">
+                <i class="fas fa-play"></i>
+            </div>
+            <div class="video-title" id="videoTitle">Tit Fim nan</div>
+            <div class="video-subtitle" id="videoSubtitle">Klike pou jwe</div>
+        </div>
+        
+        <!-- Movie Info Section -->
+        <div class="movie-info-section" id="movieInfo">
+            <!-- Info will be filled by JS -->
+        </div>
+        
+        <!-- Similar Movies -->
+        <div class="related-section">
+            <h3 class="related-title">
+                <i class="fas fa-film"></i> Fim similè
+            </h3>
+            <div class="movies-row" id="similarMovies">
+                <!-- Similar movies will be loaded here -->
+            </div>
+            
+            <a href="index.html" class="back-home">
+                <i class="fas fa-arrow-left"></i> Retounen nan akèy
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // ---------- TOUT FIM OU TE VOYE YO (OneRoom API) ----------
+        const allMovies = [
+            // Fim nan BANNER (premye seksyon)
+            {
+                subjectId: "227711592396478040",
+                title: "The Abandons",
+                description: "When a corrupt force of wealth and power covets the lands of a group of diverse and atypical families and tries to drive them out, they must pursue their Manifest Destiny.",
+                releaseDate: "2025-12-04",
+                genre: "Drama,Western",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/12/01/fa46824a82234b25f90dea876a85da84.jpg" },
+                countryName: "United States",
+                imdbRatingValue: "6.7",
+                subtitles: "English,Français,Indonesian,Malay,Português,Русский,اَلْعَرَبِيَّةُ"
+            },
+            {
+                subjectId: "5821547884994614176",
+                title: "Now You See Me: Now You Don't",
+                description: "A diamond heist reunites retired Horsemen illusionists with new performers Greenblatt, Smith and Sessa as they target dangerous criminals.",
+                releaseDate: "2025-11-14",
+                genre: "Crime,Thriller",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/12/01/aec3f8fb67dbc4ae8bf1888a6688ebed.jpg" },
+                countryName: "United States",
+                imdbRatingValue: "6.3",
+                subtitles: "English,Filipino,Français,Indonesian,Malay,اَلْعَرَبِيَّةُ,বাংলা"
+            },
+            {
+                subjectId: "6492015427626457040",
+                title: "Troll 2 [English]",
+                description: "Nora, Andreas and Captain Kris leap back into action when a dangerous new troll awakes - and this time they'll need more help to take it down.",
+                releaseDate: "2025-12-01",
+                genre: "Action,Adventure,Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/12/01/08db8bc2c65a6fd73be7295ed5ce38b7.jpg" },
+                countryName: "Norway",
+                imdbRatingValue: "7.0",
+                subtitles: "English"
+            },
+            {
+                subjectId: "4956801153355891744",
+                title: "Stranger Things",
+                description: "In 1980s Indiana, a group of young friends witness supernatural forces and secret government exploits. As they search for answers, the children unravel a series of extraordinary mysteries.",
+                releaseDate: "2016-07-15",
+                genre: "Drama,Fantasy,Horror",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/12/01/56d9b04173d90d3f74bb5a7e1112ed7e.jpg" },
+                countryName: "United States",
+                imdbRatingValue: "8.6",
+                subtitles: "English,Español,Filipino,Français,Indonesian,Kiswahili,Malay,Português,Türkçe,tiếng Việt,Русский,اَلْعَرَبِيَّةُ,اُردُو,فارسی,هَرْشٜن هَوْس,বাংলা,ਪੰਜਾਬੀ,ภาษาไทย,中文"
+            },
+            {
+                subjectId: "7774660775821954096",
+                title: "Sidelined 2: Intercepted",
+                description: "Star QB Drayton and dancer Dallas face relationship challenges amid his recovery from a setback and her doubts about her future. Their bond strains as they deal with distance and personal changes.",
+                releaseDate: "2025-11-27",
+                genre: "Romance",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/03/a4203bfb98b2e31c33181b87ec5ab420.jpg" },
+                countryName: "United States",
+                imdbRatingValue: "7.0",
+                subtitles: "English,Filipino,Français,Indonesian,Malay,اَلْعَرَبِيَّةُ,বাংলা"
+            },
+            {
+                subjectId: "4317740177360931888",
+                title: "Regretting You",
+                description: "A mother and daughter must grapple with what's left after a devastating accident reveals a shocking betrayal and forces them to confront family secrets, redefine love, and rediscover themselves.",
+                releaseDate: "2025-10-24",
+                genre: "Drama,Romance",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/12/04/51195406c983bc7d69f71487426ca0b3.jpg" },
+                countryName: "Germany",
+                imdbRatingValue: "6.0",
+                subtitles: "English,Filipino,Français,Indonesian,Malay,Português,اَلْعَرَبِيَّةُ,বাংলা"
+            },
+            {
+                subjectId: "1008516032576771104",
+                title: "Bel-Air",
+                description: "The life of a teen is forever transformed when he moves from the streets of west Philadelphia to live with his relatives in one of Los Angeles's wealthiest suburbs.",
+                releaseDate: "2022-02-13",
+                genre: "Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/12/01/b7092c27e35d9b58b31fd679e35ed6ea.jpg" },
+                countryName: "United States",
+                imdbRatingValue: "6.4",
+                subtitles: "English,Español,Filipino,Français,Indonesian,Kiswahili,Malay,Português,Русский,اَلْعَرَبِيَّةُ,اُردُو,هَرْشٜن هَوْس,বাংলা,ਪੰਜਾਬੀ,中文"
+            },
+            {
+                subjectId: "2016806085985744984",
+                title: "Outlaws",
+                description: "Set in the lush but lawless land on the border between Lesotho and KwaZulu-Natal, Outlaws is the story of two families at war with each other: the Zulu, cattle-farming Biyela clan and the Basotho, cat...",
+                releaseDate: "2023-09-06",
+                genre: "Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/12/03/8cc4792821ccd90d507232eb03619523.jpg" },
+                countryName: "South Africa",
+                imdbRatingValue: "6.8",
+                subtitles: "English,Filipino,Français,Indonesian,Kiswahili,Русский,اَلْعَرَبِيَّةُ,বাংলা"
+            },
+            {
+                subjectId: "1716151170995028536",
+                title: "Landman",
+                description: "A modern-day tale of fortune seeking in the world of West Texas oil rigs.",
+                releaseDate: "2024-11-17",
+                genre: "Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/12/02/fb97784b6e658e8c6d7813fb0cd8975d.jpg" },
+                countryName: "United States",
+                imdbRatingValue: "8.2",
+                subtitles: "English,Filipino,Français,Indonesian,Русский,اَلْعَرَبِيَّةُ,اُردُو,বাংলা"
+            },
+            {
+                subjectId: "8551787290014663888",
+                title: "Dear X",
+                description: "A woman dons a mask to flee her situation and rise to power, causing devastation along her path.",
+                releaseDate: "2025-11-06",
+                genre: "Crime,Drama,Romance",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/03/4c259736189c9a20e42e96a5dd7e5c73.jpg" },
+                countryName: "Korea",
+                imdbRatingValue: "6.8",
+                subtitles: "English,Filipino,Français,Indonesian,Malay,Português,اَلْعَرَبِيَّةُ,বাংলা,ខេមរភាសា"
+            },
+            {
+                subjectId: "2540915058863915040",
+                title: "The Manipulated",
+                description: "Mild-mannered Tae Jung is wrongfully imprisoned for a heinous crime. He soon discovers that a mysterious figure named Yo Han orchestrated his downfall. Fueled by vengeance, Tae Jung sets out to make them pay.",
+                releaseDate: "2025-11-05",
+                genre: "Action,Crime,Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/30/e095d03a689dc34ca01e92c04bce8872.jpg" },
+                countryName: "Korea",
+                imdbRatingValue: "8.0",
+                subtitles: "English,Filipino,Français,Indonesian,Malay,Português,اَلْعَرَبِيَّةُ,বাংলা,ខេមរភាសា"
+            },
+            
+            // Fim nan seksyon "Trending Now🔥"
+            {
+                subjectId: "7535775794330062000",
+                title: "Heated Rivalry",
+                description: "Two rival hockey stars at the top of their game face an unexpected challenge when they develop feelings for each other, complicating their careers and the sport's expectations.",
+                releaseDate: "2025-11-28",
+                genre: "Drama,Sport",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/30/1d43575838c499fd5383d52100da3290.jpeg" },
+                countryName: "Canada",
+                imdbRatingValue: "6.6",
+                subtitles: "English,Español,Filipino,Français,Indonesian,Malay,Português,Русский,اَلْعَرَبِيَّةُ,বাংলা,中文"
+            },
+            {
+                subjectId: "6998664604679571240",
+                title: "The Herd",
+                description: "The Herd",
+                releaseDate: "2025-10-17",
+                genre: "Thriller",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/10/06/472f3a01a90a5ac784520745b22484ba.jpg" },
+                countryName: "Nigeria",
+                imdbRatingValue: "6.1",
+                subtitles: "English,Filipino,Français,Indonesian,اَلْعَرَبِيَّةُ,বাংলা"
+            },
+            {
+                subjectId: "5539220821668940352",
+                title: "Youngins",
+                description: "A hard-hitting teen telenovela set at a boarding school in Johannesburg. When a teen flees from a family tragedy in rural KwaZulu Natal to a boarding school in Jozi, she finds herself entangled in a scandal.",
+                releaseDate: "2024-02-12",
+                genre: "Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/12/04/75532e05361b14f083fd8d6cec8e594e.jpg" },
+                countryName: "South Africa",
+                imdbRatingValue: "8.4",
+                subtitles: "English,Filipino,Français,Indonesian,Русский,اَلْعَرَبِيَّةُ,اُردُو,বাংলা"
+            },
+            {
+                subjectId: "80115926032598168",
+                title: "SLEEPY HEAD",
+                description: "SLEEPY HEAD - MAURICE SAM, MERCY EKE, ISOKEN IGBINIGIE, 2025 Latest Full Nigerian Movie",
+                releaseDate: "2025-11-25",
+                genre: "Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/26/b1a15e8ae12d844bf3df556619dbbc07.jpeg" },
+                countryName: "Nigeria",
+                imdbRatingValue: "6.3",
+                subtitles: ""
+            },
+            {
+                subjectId: "5373583835403911072",
+                title: "The Shadow's Edge",
+                description: "Macau Police brings the tracking expert police officer out of retirement to help catch a dangerous group of professional thieves.",
+                releaseDate: "2025-08-16",
+                genre: "Action,Crime,Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/25/3ff9a901b8c383d789e4c4a2fc56ffdc.jpg" },
+                countryName: "Hongkong, China",
+                imdbRatingValue: "7.4",
+                subtitles: "English,Español,Filipino,Français,Indonesian,Malay,Português,اَلْعَرَبِيَّةُ,বাংলা,ខេមរភាសា,中文"
+            },
+            {
+                subjectId: "7972206956398400280",
+                title: "Power Book IV: Force",
+                description: "Follows Tommy Egan after he cuts ties and puts New York in his rearview mirror for good.",
+                releaseDate: "2022-02-06",
+                genre: "Crime,Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/01/c638fb3ed583126402f6ee5545cf0ac0.jpg" },
+                countryName: "United States",
+                imdbRatingValue: "8.1",
+                subtitles: "English,Español,Filipino,Français,Indonesian,Kiswahili,Malay,Português,Türkçe,tiếng Việt,Русский,اَلْعَرَبِيَّةُ,اُردُو,فارسی,هَرْشٜن هَوْس,বাংলা,ਪੰਜਾਬੀ,ภาษาไทย,中文"
+            },
+            {
+                subjectId: "6642751429658696096",
+                title: "Taxi Driver",
+                description: "The story of a deluxe taxi driver who gets revenge on behalf of his passengers. It is based on the webtoon Deluxe Taxi.",
+                releaseDate: "2021-04-08",
+                genre: "Action,Crime,Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/02/96a9c51973ee296b4539d48c40740ad2.jpg" },
+                countryName: "Korea",
+                imdbRatingValue: "8.1",
+                subtitles: "English,Filipino,Français,Indonesian,Kiswahili,Malay,Português,Русский,اَلْعَرَبِيَّةُ,اُردُو,هَرْشٜن هَوْس,বাংলা,ਪੰਜਾਬੀ,ខេមរភាសា,中文"
+            },
+            {
+                subjectId: "7638377634019562528",
+                title: "The Oval",
+                description: "Newly-elected U.S. President Hunter Franklin and his family move into the White House.",
+                releaseDate: "2019-10-23",
+                genre: "Crime,Drama,Thriller",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/01/7e05da813f798e1271a9d22e7a0832fe.jpg" },
+                countryName: "United States",
+                imdbRatingValue: "4.4",
+                subtitles: "English,Filipino,Français,Indonesian,Kiswahili,Português,Русский,اَلْعَرَبِيَّةُ,اُردُو,هَرْشٜن هَوْس,বাংলা,ਪੰਜਾਬੀ,中文"
+            },
+            {
+                subjectId: "3819281169544270880",
+                title: "The Witcher",
+                description: "Geralt of Rivia, a solitary monster hunter, struggles to find his place in a world where people often prove more wicked than beasts.",
+                releaseDate: "2019-12-20",
+                genre: "Action,Adventure,Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/25/a0556db0b6923ac7c210fe8b92168135.jpg" },
+                countryName: "Poland",
+                imdbRatingValue: "7.9",
+                subtitles: "English,Español,Filipino,Français,Indonesian,Kiswahili,Malay,Português,Türkçe,tiếng Việt,Νέα Ελληνικά,Русский,اَلْعَرَبِيَّةُ,اُردُو,فارسی,هَرْشٜن هَوْس,বাংলা,ਪੰਜਾਬੀ,ภาษาไทย,中文,日本語,한국어"
+            },
+            {
+                subjectId: "1163978523174912112",
+                title: "Ajosepo",
+                description: "A young couple must deal with all kinds of family tensions on the eve of their wedding.",
+                releaseDate: "2024-04-10",
+                genre: "Comedy,Drama,Romance",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/03/b04aa69cc737d9c8b23dd69b60cf2f13.jpg" },
+                countryName: "Nigeria",
+                imdbRatingValue: "8.8",
+                subtitles: ""
+            },
+            {
+                subjectId: "6345447110997328152",
+                title: "Maxton Hall: The World Between Us [English]",
+                description: "Quick-witted scholarship student Ruby unwittingly witnesses a secret at Maxton Hall. Arrogant millionaire heir James is determined to silence her, but their clash ignites an unexpected spark.",
+                releaseDate: "2024-05-09",
+                genre: "Drama,Romance",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/03/ff6604f0c8c3c65e866442a4230f5bea.jpeg" },
+                countryName: "Germany",
+                imdbRatingValue: "7.5",
+                subtitles: "English"
+            },
+            
+            // Fim nan seksyon "Hollywood Movie"
+            {
+                subjectId: "163946302454269272",
+                title: "Troll [English]",
+                description: "Deep in the Dovre mountain, something gigantic wakes up after a thousand years in captivity. The creature destroys everything in its path and quickly approaches Oslo.",
+                releaseDate: "2022-12-01",
+                genre: "Action,Adventure,Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2023/02/16/c8e25015a849bb216255f9d2316162a7.jpg" },
+                countryName: "Norway",
+                imdbRatingValue: "5.8",
+                subtitles: "English"
+            },
+            {
+                subjectId: "8834570753744978984",
+                title: "Now You See Me 2",
+                description: "The Four Horsemen resurface, and are forcibly recruited by a tech genius to pull off their most impossible heist yet.",
+                releaseDate: "2016-06-10",
+                genre: "Action,Adventure,Comedy",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/19/25889aec29ec399d6bd19c19e5829d5c.jpg" },
+                countryName: "United States",
+                imdbRatingValue: "6.4",
+                subtitles: "English,Español,Filipino,Français,Indonesian,Kiswahili,Malay,Português,Türkçe,tiếng Việt,Русский,اَلْعَرَبِيَّةُ,اُردُو,فارسی,هَرْشٜن هَوْس,বাংলা,ਪੰਜਾਬੀ,ภาษาไทย,中文"
+            },
+            {
+                subjectId: "4057615725207375656",
+                title: "Now You See Me",
+                description: "An FBI agent and an Interpol detective track a team of illusionists who pull off bank heists during their performances, and reward their audiences with the money.",
+                releaseDate: "2013-05-31",
+                genre: "Crime,Mystery,Thriller",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/19/e862fd33937b7ed1c9966c842ad7b627.jpg" },
+                countryName: "United States",
+                imdbRatingValue: "7.2",
+                subtitles: "English,Filipino,Français,Indonesian,Kiswahili,Malay,Português,Русский,اَلْعَرَبِيَّةُ,اُردُو,هَرْشٜن هَوْس,বাংলা,ਪੰਜਾਬੀ,中文"
+            },
+            {
+                subjectId: "4353442402246478680",
+                title: "Last Samurai Standing [English]",
+                description: "In 1878, 292 samurais gather for a battle royale lured by a 100 billion yen prize. Wooden tags are given, last survivor reaching Tokyo wins.",
+                releaseDate: "2025-11-13",
+                genre: "Action,Drama,History",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/11/12/71475ce6dd9c4d383c844d29a17a5435.jpg" },
+                countryName: "Japan",
+                imdbRatingValue: "7.6",
+                subtitles: "English"
+            },
+            {
+                subjectId: "5014224821543227976",
+                title: "Tyler Perry's Finding Joy",
+                description: "Stranded in Colorado after a devastating holiday revelation, a talented but overlooked NYC designer finds unexpected love, transforming her life and career path.",
+                releaseDate: "2025-11-05",
+                genre: "Drama",
+                cover: { url: "https://pbcdnw.aoneroom.com/image/2025/12/02/ac47f00a9d7ea9acf6c12f849fa7e169.jpg" },
+                countryName: "United States",
+                imdbRatingValue: "4.5",
+                subtitles: "English,Filipino,Français,Indonesian,Malay,Português,اَلْعَرَبِيَّةُ,বাংলা"
+            }
+        ];
+
+        // Jwenn ID fim nan nan URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const movieId = urlParams.get('id');
+        
+        // Jwenn enfòmasyon fim nan
+        const currentMovie = allMovies.find(m => m.subjectId == movieId);
+
+        // Si pa gen fim, montre mesaj
+        if (!currentMovie) {
+            document.body.innerHTML = `
+                <div class="not-found">
+                    <i class="fas fa-film"></i>
+                    <h3>Fim pa jwenn</h3>
+                    <p style="color:#666; margin-bottom:20px;">ID: ${movieId || 'pa gen ID'}</p>
+                    <a href="index.html">← Retounen nan akèy</a>
+                </div>
+            `;
+        } else {
+            // Mete tit nan header
+            document.getElementById('player-title').textContent = currentMovie.title;
+            
+            // Mete imaj background
+            const placeholder = document.getElementById('videoPlaceholder');
+            if (currentMovie.cover?.url) {
+                placeholder.style.backgroundImage = `url('${currentMovie.cover.url}')`;
+            }
+            
+            // Mete tit sou placeholder
+            document.getElementById('videoTitle').textContent = currentMovie.title;
+            
+            // Jere klike sou bouton jwe
+            document.getElementById('playButton').addEventListener('click', function() {
+                alert(`"${currentMovie.title}" ap jwe...\n\nVideo pa disponib nan vèsyon demonstrasyon sa a.`);
+            });
+            
+            // Afiche enfòmasyon fim nan
+            const year = currentMovie.releaseDate ? new Date(currentMovie.releaseDate).getFullYear() : 'N/A';
+            const genre = currentMovie.genre || 'Jenerik';
+            const country = currentMovie.countryName || 'Peyi enkoni';
+            const imdb = currentMovie.imdbRatingValue || 'N/A';
+            const desc = currentMovie.description || 'Pa gen deskripsyon disponib.';
+            const subs = currentMovie.subtitles || 'Pa presize';
+            
+            document.getElementById('movieInfo').innerHTML = `
+                <div class="movie-title-large">${currentMovie.title}</div>
+                <div class="movie-meta">
+                    <span>${year}</span>
+                    <span>•</span>
+                    <span>${genre.split(',')[0]}</span>
+                    <span>•</span>
+                    <span>${country}</span>
+                    <span class="imdb-badge">IMDb ${imdb}</span>
+                </div>
+                <div class="movie-description">${desc}</div>
+                <div class="movie-extra">
+                    <span class="extra-item"><i class="fas fa-closed-captioning"></i> ${subs.substring(0, 30)}${subs.length > 30 ? '...' : ''}</span>
+                    <span class="extra-item"><i class="fas fa-calendar-alt"></i> ${currentMovie.releaseDate || 'Dat enkoni'}</span>
+                </div>
+            `;
+            
+            // Afiche fim similè (lòt fim)
+            const otherMovies = allMovies.filter(m => m.subjectId != movieId).slice(0, 6);
+            const similarDiv = document.getElementById('similarMovies');
+            
+            if (otherMovies.length > 0) {
+                similarDiv.innerHTML = '';
+                otherMovies.forEach(m => {
+                    const card = document.createElement('div');
+                    card.className = 'related-card';
+                    card.onclick = () => {
+                        window.location.href = `player.html?id=${m.subjectId}`;
+                    };
+                    
+                    const mYear = m.releaseDate ? new Date(m.releaseDate).getFullYear() : '';
+                    
+                    card.innerHTML = `
+                        <div class="related-poster">
+                            <img src="${m.cover?.url || ''}" alt="${m.title}" onerror="this.src='https://via.placeholder.com/130x195?text=No+Image'">
+                        </div>
+                        <div class="related-info">
+                            <h4>${m.title}</h4>
+                            <p>${mYear}</p>
+                        </div>
+                    `;
+                    similarDiv.appendChild(card);
+                });
+            } else {
+                similarDiv.innerHTML = '<p style="color: #666;">Pa gen lòt fim pou kounye a.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
